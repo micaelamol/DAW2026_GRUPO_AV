@@ -6,6 +6,7 @@ import { AppService } from './app.service.js';
 import { AuthModule } from './auth/auth.module.js';
 import { SeedModule } from './seed/seed.module.js';
 import { UsuariosModule } from './usuarios/usuarios.module.js';
+import { ReservasModule } from './reservas/reservas.module.js';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { UsuariosModule } from './usuarios/usuarios.module.js';
     UsuariosModule,
     AuthModule,
     SeedModule,
+    ReservasModule,
   ],
   controllers: [AppController],
   providers: [AppService],
