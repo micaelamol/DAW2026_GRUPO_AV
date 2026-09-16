@@ -12,16 +12,22 @@ import { UsuariosModule } from './usuarios/usuarios.module.js';
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        type: 'postgres',
-        host: config.get<string>('DB_HOST', 'localhost'),
-        port: config.get<number>('DB_PORT', 5432),
-        username: config.get<string>('DB_USER', 'postgres'),
-        password: config.get<string>('DB_PASSWORD', 'postgres'),
-        database: config.get<string>('DB_NAME', 'clinica_av'),
-        autoLoadEntities: true,
-        synchronize: config.get<string>('DB_SYNCHRONIZE', 'true') === 'true',
-      }),
+      useFactory: (config: ConfigService) => {
+        // 👇 Debug de variables de entorno
+        // console.log('DB_USER:', process.env.DB_USER);
+        // console.log('DB_PASSWORD:', process.env.DB_PASSWORD);
+
+        return {
+          type: 'postgres',
+          host: config.get<string>('DB_HOST', 'localhost'),
+          port: config.get<number>('DB_PORT', 5432),
+          username: config.get<string>('DB_USER', 'postgres'),
+          password: config.get<string>('DB_PASSWORD', 'postgres'),
+          database: config.get<string>('DB_NAME', 'clinica_av'),
+          autoLoadEntities: true,
+          synchronize: config.get<string>('DB_SYNCHRONIZE', 'true') === 'true',
+        };
+      },
     }),
     UsuariosModule,
     AuthModule,
@@ -31,3 +37,7 @@ import { UsuariosModule } from './usuarios/usuarios.module.js';
   providers: [AppService],
 })
 export class AppModule {}
+
+
+
+
