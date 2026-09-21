@@ -4,6 +4,8 @@ import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { AppModule } from './app.module.js';
+import { ConfigService } from '@nestjs/config';
+
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -24,19 +26,18 @@ async function bootstrap() {
       transform: true,
     }),
   );
+  const config=app.get(ConfigService);
 
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle('Clinica Medica API')
-    .setDescription(
-      'API del Trabajo Final Integrador - Desarrollo de Aplicaciones Web 2026'
-    )
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
-
-  const document = SwaggerModule.createDocument(app, swaggerConfig);
-
-  SwaggerModule.setup('docs', app, document);
+  if (config.get<string>('SWAGGER_HABILITADO') === 'true') {
+    const swaggerConfig = new DocumentBuilder()
+      .setTitle('Clínica Médica API')
+      .setDescription('API del Trabajo Final Integrador - Desarrollo de Aplicaciones Web 2026')
+      .setVersion('1.0')
+      .addBearerAuth()
+      .build();
+    const document = SwaggerModule.createDocument(app, swaggerConfig);
+    SwaggerModule.setup('api/docs', app, document);
+  }
 
   const port = Number(process.env.PORT ?? 3000);
 
