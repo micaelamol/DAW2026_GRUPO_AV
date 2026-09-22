@@ -12,7 +12,7 @@ export class ReservaEntity {
   @JoinColumn({name:'id_medico'})
   medico: MedicoEntity;
 
-  @Column ({ type: 'datetime', nullable:false })
+  @Column ({ type: 'timestamp', nullable:false })
   fecha_hora: Date;
 
   @ManyToOne(()=> UsuarioEntity, { nullable:false })

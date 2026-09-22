@@ -4,16 +4,40 @@ import { ReservaEntity } from './entities/reserva.entity.js';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EstadosReservas } from './enums/estados-reservas.enum.js';
+import { MedicoEntity } from '../usuarios/entities/medico.entity.js';
 
 @Injectable()
 export class ReservasService {
     
-    constructor(@InjectRepository(ReservaEntity)private reservaRepositorio: Repository<ReservaEntity>,) {}
+    constructor(@InjectRepository(ReservaEntity) private reservaRepositorio: Repository<ReservaEntity>,
+    @InjectRepository(MedicoEntity) private medicoRepositorio: Repository<MedicoEntity>) {}
+
 
     async crearReserva(dto: CreateReservaDto) { 
         const fechaReserva = new Date(dto.fecha_hora);
+        
         this.validarFechaReserva(fechaReserva);
-        const reservaDuplicada= await this.reservaRepositorio.findOne({where:{ medico:{ id: dto.id_medico },fecha_hora: dto.fechaReserva,estado:EstadosReservas.ACTIVO}})
+        const reservaDuplicada= await this.reservaRepositorio.findOne({where:{ medico:{ id: dto.id_medico },fecha_hora: fechaReserva,estado:EstadosReservas.ACTIVO}})
+        const medico=await this.medicoRepositorio.findOne({where:{id:dto.id_medico}})
+
+        if(reservaDuplicada) //da null si la fecha esta libre
+        {
+            throw new BadRequestException("El turno a reservar ya esta ocupado, elije otro horario/fecha.")
+        } if (!medico){
+            throw new BadRequestException ("El medico selecionado no existe.")
+        }
+        const precioCongelado=medico.valorConsulta;
+
+        const nuevaReserva=this.reservaRepositorio.create({
+            fecha_hora:fechaReserva,
+            estado:EstadosReservas.ACTIVO,
+            valor_consulta:precioCongelado,
+            medico:{id:dto.id_medico},
+            paciente:{id:dto.id_paciente}
+        });
+        await this.reservaRepositorio.save(nuevaReserva);
+
+        return nuevaReserva;
     }
 
     private validarFechaReserva(fechaReserva: Date) {
