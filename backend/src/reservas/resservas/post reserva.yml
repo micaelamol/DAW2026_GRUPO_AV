@@ -1,0 +1,23 @@
+info:
+  name: post reserva
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://localhost:3000/api/reservas
+  body:
+    type: json
+    data: |-
+      {
+        "fecha_hora": "2026-09-24T10:00:00-03:00",
+        "id_medico": 9999,
+        "id_paciente": 2
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -61,4 +61,31 @@ export class ReservasService {
             throw new BadRequestException("No se pueden hacer reservas con más de 30 días de anticipación.");
         }
     }
+
+    async listarReservas() {
+    return await this.reservaRepositorio.find({
+      relations:{ medico:true, paciente:true} 
+    });
+  }
+
+  async cancelarReserva(id: number) {
+    const reserva = await this.reservaRepositorio.findOne({ 
+        where: { id } 
+    });
+
+    if (!reserva) {
+      throw new BadRequestException("La reserva que intentas cancelar no existe.");
+    }
+
+    if (reserva.estado === EstadosReservas.CANCELADO) {
+      throw new BadRequestException("Esta reserva ya esta cancelada.");
+    }
+
+    reserva.estado = EstadosReservas.CANCELADO;
+    
+    // bd guardado
+    await this.reservaRepositorio.save(reserva);
+
+    return { mensaje: `La reserva con ID ${id} fue cancelada exitosamente.` };
+  }
 }
