@@ -14,11 +14,11 @@ export class ReservasController {
 //ruta listar reservas
   @Get()
   listar() {
-    return "por completar: listado de los turnos" // this.reservasService.listarReserva();
+    return this.reservasService.listarReservas();
   }
   //ruta cancelar reserva especfica
   @Delete(':id')
   cancelar(@Param('id') id: string) {
-    return "pendiente:cancelacion de turno" //this.reservasService.cancelarReserva(+id);
+    return this.reservasService.cancelarReserva(+id);
   }
 }
