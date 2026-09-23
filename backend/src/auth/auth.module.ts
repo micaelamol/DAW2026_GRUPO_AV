@@ -4,7 +4,8 @@ import { JwtModule, type JwtModuleOptions, type JwtSignOptions } from '@nestjs/j
 import { UsuariosModule } from '../usuarios/usuarios.module.js';
 import { AuthController } from './auth.controller.js';
 import { AuthService } from './auth.service.js';
-import { JwtAuthGuard } from './jwt-auth.guard.js';
+import { JwtAuthGuard } from './guards/jwt-auth.guard.js';
+import { RolesGuard } from './guards/roles.guard.js'; // 👈 1. Importamos el nuevo guardián
 
 @Module({
   imports: [
@@ -25,7 +26,9 @@ import { JwtAuthGuard } from './jwt-auth.guard.js';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtAuthGuard],
-  exports: [JwtAuthGuard],
+  // 👈 2. Agregamos RolesGuard a los proveedores del módulo
+  providers: [AuthService, JwtAuthGuard, RolesGuard], 
+  // 👈 3. Lo exportamos para que ReservasModule (y cualquier otro) pueda usarlo
+  exports: [JwtAuthGuard, RolesGuard], 
 })
 export class AuthModule {}

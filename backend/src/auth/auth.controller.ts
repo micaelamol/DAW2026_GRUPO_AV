@@ -5,8 +5,8 @@ import { AuthService } from './auth.service.js';
 import { LoginDto } from './dto/login.dto.js';
 import { LoginResponseDto } from './dto/login-response.dto.js';
 import { UsuarioResponseDto } from './dto/usuario-response.dto.js';
-import { JwtAuthGuard } from './jwt-auth.guard.js';
-import type { AuthenticatedRequest } from './jwt-auth.guard.js';
+import { JwtAuthGuard } from './guards/jwt-auth.guard.js';
+import type { AuthenticatedRequest } from './guards/jwt-auth.guard.js';
 
 @ApiTags('Autenticación')
 @Controller('auth')

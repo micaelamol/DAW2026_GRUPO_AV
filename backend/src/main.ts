@@ -8,6 +8,9 @@ import { ConfigService } from '@nestjs/config';
 
 
 async function bootstrap() {
+
+  process.env.TZ = 'America/Argentina/Buenos_Aires';
+
   const app = await NestFactory.create(AppModule);
 
   app.setGlobalPrefix('api');
@@ -46,4 +49,4 @@ async function bootstrap() {
   console.log(`Servidor corriendo en http://localhost:${port}/api`);
 }
 
-void bootstrap();
+bootstrap();
