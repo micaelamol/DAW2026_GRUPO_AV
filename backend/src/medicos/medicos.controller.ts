@@ -10,7 +10,7 @@ import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard.js";
 @ApiTags('medicos')
 @ApiBearerAuth()
 @Controller('medicos')
-@UseGuards(JwtAuthGuard, RolesGuard)
+/* @UseGuards(JwtAuthGuard, RolesGuard) */
 export class MedicosController {
   constructor(private readonly medicosService: MedicosService) {}
 
