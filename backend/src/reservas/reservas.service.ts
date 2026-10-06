@@ -8,17 +8,17 @@ import { MedicoEntity } from '../usuarios/entities/medico.entity.js';
 
 @Injectable()
 export class ReservasService {
-    
+
     constructor(
         @InjectRepository(ReservaEntity) private reservaRepositorio: Repository<ReservaEntity>,
         @InjectRepository(MedicoEntity) private medicoRepositorio: Repository<MedicoEntity>
-    ) {}
+    ) { }
 
     // CREACIÓN RESERVAS (Pacientes y Administrador)
-    
-    async crearReserva(dto: CreateReservaDto) { 
+
+    async crearReserva(dto: CreateReservaDto) {
         const fechaReserva = new Date(dto.fecha_hora);
-        
+        /* console.log('pasa por antes de la llamada a validarFechaReserva', fechaReserva) */
         this.validarFechaReserva(fechaReserva);
         const reservaDuplicada = await this.reservaRepositorio.findOne({
             where: { medico: { id: dto.id_medico }, fecha_hora: fechaReserva, estado: EstadosReservas.ACTIVO }
@@ -27,15 +27,17 @@ export class ReservasService {
 
         if (reservaDuplicada) {
             throw new BadRequestException("El turno a reservar ya esta ocupado, elije otro horario/fecha.");
-        } 
+        }
         if (!medico) {
             throw new BadRequestException("El medico seleccionado no existe.");
         }
 
         const precioCongelado = medico.valorConsulta;
-
+        
+        const reservaStr = `${fechaReserva.toISOString().split('T')[0]} ${fechaReserva.toISOString().split('T')[1].split(':00.000Z')[0]}`
+        
         const nuevaReserva = this.reservaRepositorio.create({
-            fecha_hora: fechaReserva,
+            fecha_hora: reservaStr,
             estado: EstadosReservas.ACTIVO,
             valor_consulta: precioCongelado,
             medico: { id: dto.id_medico },
@@ -47,12 +49,14 @@ export class ReservasService {
     }
 
     private validarFechaReserva(fechaReserva: Date) {
-        const horaReserva = fechaReserva.getHours();
+        const horaReserva = fechaReserva.getHours()+3; // Ajuste de zona horaria a UTC-3
+        console.log('horaReserva: ', horaReserva)
         if (horaReserva < 8 || horaReserva > 15) {
             throw new BadRequestException("El horario de atención es de 8 a 16 hs y los turnos duran 1 hora.");
         }
 
         const diaDeLaSemana = fechaReserva.getDay();
+        console.log('diaDeLaSemana: ', diaDeLaSemana)
         if (diaDeLaSemana === 0 || diaDeLaSemana === 6) {
             throw new BadRequestException("Solo se atienden reservas de Lunes a Viernes.");
         }
@@ -60,9 +64,13 @@ export class ReservasService {
         const hoy = new Date();
         const diferenciaMiliseg = fechaReserva.getTime() - hoy.getTime();
         const diferenciaDias = diferenciaMiliseg / (1000 * 60 * 60 * 24);
-
+        console.log('diferenciaMiliseg: ', diferenciaMiliseg, ' diferenciaDias: ', diferenciaDias)
         if (diferenciaDias < 0) {
             throw new BadRequestException("No se pueden solicitar turnos en una fecha que ya paso.");
+        }
+        const minutos = fechaReserva.getMinutes()
+        if (minutos!=0){
+            throw new BadRequestException("seleccione un horario válido, los minutos deben terminar en 00 .");
         }
 
         if (diferenciaDias > 30) {
@@ -71,11 +79,11 @@ export class ReservasService {
     }
 
     // FILTROS POR ROL
-    
+
     // Administrador: Ve absolutamente todas las reservas del sistema
     async listarTodasLasReservas() {
         return await this.reservaRepositorio.find({
-            relations: { medico: true, paciente: true } 
+            relations: { medico: true, paciente: true }
         });
     }
 
@@ -89,18 +97,18 @@ export class ReservasService {
 
     // Médico: Ve sus turnos reservados dada una fecha específica (Formato fecha: 'YYYY-MM-DD')
     async listarReservasPorMedicoYFecha(idMedico: number, fechaStr: string) {
-    const inicioDia = new Date(`${fechaStr}T00:00:00`);
-    const finDia = new Date(`${fechaStr}T23:59:59`);
+        const inicioDia = new Date(`${fechaStr}T00:00:00`);
+        const finDia = new Date(`${fechaStr}T23:59:59`);
 
-    return await this.reservaRepositorio.createQueryBuilder('reserva')
-        .leftJoinAndSelect('reserva.paciente', 'paciente')
-        .where('reserva.id_medico = :idMedico', { idMedico }) 
-        .andWhere('reserva.fecha_hora BETWEEN :inicioDia AND :finDia', { inicioDia, finDia })
-        .getMany();
-}
-    
+        return await this.reservaRepositorio.createQueryBuilder('reserva')
+            .leftJoinAndSelect('reserva.paciente', 'paciente')
+            .where('reserva.id_medico = :idMedico', { idMedico })
+            .andWhere('reserva.fecha_hora BETWEEN :inicioDia AND :finDia', { inicioDia, finDia })
+            .getMany();
+    }
+
     // (Exclusivo Médico)
-  
+
     async cambiarEstadoTurnoMedico(idReserva: number, nuevoEstado: 'atendido' | 'ausente') {
         const reserva = await this.reservaRepositorio.findOne({ where: { id: idReserva } });
         if (!reserva) {
@@ -109,9 +117,9 @@ export class ReservasService {
 
         // Mapeamos los estados según los strings requeridos
         if (nuevoEstado === 'atendido') {
-            reserva.estado = EstadosReservas.ATENDIDO; 
+            reserva.estado = EstadosReservas.ATENDIDO;
         } else if (nuevoEstado === 'ausente') {
-            reserva.estado = EstadosReservas.AUSENTE; 
+            reserva.estado = EstadosReservas.AUSENTE;
         } else {
             throw new BadRequestException("Estado inválido. Debe ser 'atendido' o 'ausente'.");
         }
@@ -120,13 +128,13 @@ export class ReservasService {
         return { mensaje: `El turno cambió su estado a ${nuevoEstado} exitosamente.` };
     }
 
-    
+
     // CANCELACIONES POR ROL 
 
     // Paciente: Permite cancelar solo hasta el día anterior
     async cancelarReservaComoPaciente(idReserva: number, idPaciente: number) {
         const reserva = await this.obtenerReservaValida(idReserva);
-        
+
         if (reserva.paciente.id !== idPaciente) {
             throw new BadRequestException("No tienes permiso para cancelar esta reserva.");
         }
@@ -135,8 +143,8 @@ export class ReservasService {
         const fechaConsulta = new Date(reserva.fecha_hora);
 
         // Ponemos las horas a las 00:00:00 para comparar solo días calendarios completos
-        hoy.setHours(0,0,0,0);
-        fechaConsulta.setHours(0,0,0,0);
+        hoy.setHours(0, 0, 0, 0);
+        fechaConsulta.setHours(0, 0, 0, 0);
 
         // Si la fecha de la consulta es menor o igual al día de hoy, se rechaza
         if (fechaConsulta.getTime() <= hoy.getTime()) {
@@ -149,7 +157,7 @@ export class ReservasService {
     // Administrador: Permite cancelar hasta el momento en que inicia la consulta
     async cancelarReservaComoAdmin(idReserva: number) {
         const reserva = await this.obtenerReservaValida(idReserva);
-        
+
         const ahora = new Date();
         const fechaHoraConsulta = new Date(reserva.fecha_hora);
 
@@ -163,7 +171,7 @@ export class ReservasService {
 
     // Métodos auxiliares privados para reutilizar código de cancelación
     private async obtenerReservaValida(id: number): Promise<ReservaEntity> {
-        const reserva = await this.reservaRepositorio.findOne({ 
+        const reserva = await this.reservaRepositorio.findOne({
             where: { id },
             relations: { paciente: true }
         });
