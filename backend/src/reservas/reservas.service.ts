@@ -18,7 +18,7 @@ export class ReservasService {
 
     async crearReserva(dto: CreateReservaDto) {
         const fechaReserva = new Date(dto.fecha_hora);
-        
+
         this.validarFechaReserva(fechaReserva);
         const reservaDuplicada = await this.reservaRepositorio.findOne({
             where: { medico: { id: dto.id_medico }, fecha_hora: fechaReserva, estado: EstadosReservas.ACTIVO }
@@ -33,9 +33,9 @@ export class ReservasService {
         }
 
         const precioCongelado = medico.valorConsulta;
-        
+
         const reservaStr = `${fechaReserva.toISOString().split('T')[0]} ${fechaReserva.toISOString().split('T')[1].split(':00.000Z')[0]}`
-        
+
         const nuevaReserva = this.reservaRepositorio.create({
             fecha_hora: reservaStr,
             estado: EstadosReservas.ACTIVO,
@@ -49,14 +49,14 @@ export class ReservasService {
     }
 
     private validarFechaReserva(fechaReserva: Date) {
-        const horaReserva = fechaReserva.getHours()+3; // Ajuste de zona horaria a UTC-3
-        
+        const horaReserva = fechaReserva.getHours() + 3; // Ajuste de zona horaria a UTC-3
+
         if (horaReserva < 8 || horaReserva > 15) {
             throw new BadRequestException("El horario de atención es de 8 a 16 hs y los turnos duran 1 hora.");
         }
 
         const diaDeLaSemana = fechaReserva.getDay();
-        
+
         if (diaDeLaSemana === 0 || diaDeLaSemana === 6) {
             throw new BadRequestException("Solo se atienden reservas de Lunes a Viernes.");
         }
@@ -64,12 +64,12 @@ export class ReservasService {
         const hoy = new Date();
         const diferenciaMiliseg = fechaReserva.getTime() - hoy.getTime();
         const diferenciaDias = diferenciaMiliseg / (1000 * 60 * 60 * 24);
-        
+
         if (diferenciaDias < 0) {
             throw new BadRequestException("No se pueden solicitar turnos en una fecha que ya paso.");
         }
         const minutos = fechaReserva.getMinutes()
-        if (minutos!=0){
+        if (minutos != 0) {
             throw new BadRequestException("seleccione un horario válido, los minutos deben terminar en 00 .");
         }
 
@@ -100,11 +100,18 @@ export class ReservasService {
         const inicioDia = new Date(`${fechaStr}T00:00:00`);
         const finDia = new Date(`${fechaStr}T23:59:59`);
 
-        return await this.reservaRepositorio.createQueryBuilder('reserva')
+        const turnos = await this.reservaRepositorio.createQueryBuilder('reserva')
             .leftJoinAndSelect('reserva.paciente', 'paciente')
             .where('reserva.id_medico = :idMedico', { idMedico })
             .andWhere('reserva.fecha_hora BETWEEN :inicioDia AND :finDia', { inicioDia, finDia })
             .getMany();
+        /* console.log('Turnos encontrados:', turnos); // Depuración: muestra los turnos encontrados en la consola */
+        const turnosCorregidos = turnos.map(t => {
+            const fecha = new Date(t.fecha_hora);
+            fecha.setHours(fecha.getHours() - 3); // Restamos 3 hs
+            return { ...t, fecha_hora: fecha };
+        });
+        return turnosCorregidos;
     }
 
     // (Exclusivo Médico)
