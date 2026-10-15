@@ -17,9 +17,10 @@ export class ReservasService {
     // CREACIÓN RESERVAS (Pacientes y Administrador)
 
     async crearReserva(dto: CreateReservaDto) {
-        const fechaReserva = new Date(dto.fecha_hora);
+        const fechaReserva1 = new Date(dto.fecha_hora);
+        const fechaReserva = `${fechaReserva1.toISOString().split('T')[0]},${fechaReserva1.toISOString().split('T')[1].substring(0,7)}`
 
-        this.validarFechaReserva(fechaReserva);
+        this.validarFechaReserva(fechaReserva1);
         const reservaDuplicada = await this.reservaRepositorio.findOne({
             where: { medico: { id: dto.id_medico }, fecha_hora: fechaReserva, estado: EstadosReservas.ACTIVO }
         });
@@ -34,7 +35,7 @@ export class ReservasService {
 
         const precioCongelado = medico.valorConsulta;
 
-        const reservaStr = `${fechaReserva.toISOString().split('T')[0]} ${fechaReserva.toISOString().split('T')[1].split(':00.000Z')[0]}`
+        const reservaStr = `${fechaReserva1.toISOString().split('T')[0]} ${fechaReserva1.toISOString().split('T')[1].split(':00.000Z')[0]}`
 
         const nuevaReserva = this.reservaRepositorio.create({
             fecha_hora: reservaStr,

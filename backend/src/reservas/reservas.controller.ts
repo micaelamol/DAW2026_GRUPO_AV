@@ -11,7 +11,7 @@ import { Roles } from '../auth/decorators/roles.decorator.js';
 @ApiTags('Reservas') 
 @ApiBearerAuth() // 🔓 Agrega el candado de autenticación a este controlador en la interfaz de Swagger
 @Controller('reservas') 
-/* @UseGuards(JwtAuthGuard, RolesGuard) */ // 🔥 Protege TODOS los endpoints del controlador con Token y Rol
+@UseGuards(JwtAuthGuard, RolesGuard)  // 🔥 Protege TODOS los endpoints del controlador con Token y Rol
 export class ReservasController {
   constructor(private readonly reservasService: ReservasService) {}
 
@@ -73,7 +73,7 @@ export class ReservasController {
   
   // Ver agenda del médico por fecha. Ejemplo: /reservas/medico/5?fecha=2026-10-15
   @Get('medico/:idMedico')
-  @Roles('MEDICO', 'ADMINISTRADOR') // 🩺 Médico ve su agenda, Admin asiste
+  @Roles('MEDICO', 'ADMINISTRADOR','PACIENTE') // 🩺 Médico ve su agenda, Admin asiste
   @ApiOperation({ summary: 'Ver agenda del médico filtrada por fecha' })
   @ApiParam({ name: 'idMedico', description: 'ID del médico' })
   @ApiQuery({ name: 'fecha', description: 'Fecha a consultar (Formato requerido: YYYY-MM-DD)', example: '2026-10-15' })
