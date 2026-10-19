@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { MedicosEntity } from "./entities/medicos.entity.js";
+import { MedicosEntity } from "../usuarios/entities/medico.entity.js";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm/browser/repository/Repository.js";
 import { MedicosResponseDto } from "./dto/medicos-response.dto.js";

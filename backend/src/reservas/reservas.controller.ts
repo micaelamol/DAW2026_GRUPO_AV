@@ -7,7 +7,9 @@ import { ApiTags, ApiOperation, ApiParam, ApiQuery, ApiBody, ApiBearerAuth } fro
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 import { RolesGuard } from '../auth/guards/roles.guard.js';
 import { Roles } from '../auth/decorators/roles.decorator.js';
-
+import { ParseIdPipe } from '../shared/parse-id.pipe.js';
+import {ParseDatePipe} from '../shared/parse-date.pipe.js'
+import { CambiarEstadoDto } from './dto/cambiar-estado.dto.js';
 @ApiTags('Reservas') 
 @ApiBearerAuth() // 🔓 Agrega el candado de autenticación a este controlador en la interfaz de Swagger
 @Controller('reservas') 
@@ -41,8 +43,8 @@ export class ReservasController {
   @Roles('ADMINISTRADOR') // 🔑 Exclusivo Admin
   @ApiOperation({ summary: 'Cancelar reserva como Administrador (Permitido hasta el inicio del turno)' })
   @ApiParam({ name: 'id', description: 'ID de la reserva que se quiere cancelar' })
-  cancelarComoAdmin(@Param('id') id: string) {
-    return this.reservasService.cancelarReservaComoAdmin(+id);
+  cancelarComoAdmin(@Param('id', ParseIdPipe) id: number) {
+    return this.reservasService.cancelarReservaComoAdmin(id);
   }
 
   // RUTAS DEL PACIENTE
@@ -52,8 +54,8 @@ export class ReservasController {
   @Roles('PACIENTE', 'ADMINISTRADOR') // 👤 Paciente puede ver lo suyo, Admin puede ver todo
   @ApiOperation({ summary: 'Listar turnos de un paciente específico' })
   @ApiParam({ name: 'idPaciente', description: 'ID del paciente' })
-  listarPorPaciente(@Param('idPaciente') idPaciente: string) {
-    return this.reservasService.listarReservasPorPaciente(+idPaciente);
+  listarPorPaciente(@Param('idPaciente',ParseIdPipe) idPaciente: number) {
+    return this.reservasService.listarReservasPorPaciente(idPaciente);
   }
 
   // Cancelar reserva como Paciente (Permitido solo hasta el día anterior)
@@ -63,10 +65,10 @@ export class ReservasController {
   @ApiParam({ name: 'id', description: 'ID de la reserva' })
   @ApiParam({ name: 'idPaciente', description: 'ID del paciente solicitante' })
   cancelarComoPaciente(
-    @Param('id') id: string,
-    @Param('idPaciente') idPaciente: string
+    @Param('id', ParseIdPipe) id: number,
+    @Param('idPaciente', ParseIdPipe) idPaciente: number
   ) {
-    return this.reservasService.cancelarReservaComoPaciente(+id, +idPaciente);
+    return this.reservasService.cancelarReservaComoPaciente(id, idPaciente);
   }
 
   // RUTAS DEL MÉDICO
@@ -78,15 +80,15 @@ export class ReservasController {
   @ApiParam({ name: 'idMedico', description: 'ID del médico' })
   @ApiQuery({ name: 'fecha', description: 'Fecha a consultar (Formato requerido: YYYY-MM-DD)', example: '2026-10-15' })
   listarPorMedico(
-    @Param('idMedico') idMedico: string,
-    @Query('fecha') fecha: string
+    @Param('idMedico', ParseIdPipe) idMedico: number,
+    @Query('fecha', ParseDatePipe) fecha: string
   ) {
-    return this.reservasService.listarReservasPorMedicoYFecha(+idMedico, fecha);
+    return this.reservasService.listarReservasPorMedicoYFecha(idMedico, fecha);
   }
 
   // Marcar turno como atendido o ausente
   @Patch('medico/:id/estado')
-  @Roles('MEDICO') // 🩺 Exclusivo el Médico asignado
+  @Roles('MEDICO',) // 🩺 Exclusivo el Médico asignado
   @ApiOperation({ summary: 'Marcar turno como atendido o ausente (Médicos)' })
   @ApiParam({ name: 'id', description: 'ID de la reserva' })
   @ApiBody({ 
@@ -98,9 +100,9 @@ export class ReservasController {
     } 
   })
   cambiarEstado(
-    @Param('id') id: string,
-    @Body('estado') estado: 'atendido' | 'ausente'
+    @Param('id', ParseIdPipe) id: number,
+    @Body()dto:CambiarEstadoDto
   ) {
-    return this.reservasService.cambiarEstadoTurnoMedico(+id, estado);
+    return this.reservasService.cambiarEstadoTurnoMedico(id, dto.estado);
   }
 }

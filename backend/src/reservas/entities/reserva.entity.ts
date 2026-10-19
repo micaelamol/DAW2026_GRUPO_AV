@@ -1,5 +1,5 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { MedicoEntity } from '../../usuarios/entities/medico.entity.js';
+import { MedicosEntity } from '../../usuarios/entities/medico.entity.js';
 import { UsuarioEntity } from '../../usuarios/entities/usuario.entity.js';
 import { EstadosReservas } from '../enums/estados-reservas.enum.js';
 
@@ -8,9 +8,9 @@ export class ReservaEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => MedicoEntity, { nullable: false })
+  @ManyToOne(() => MedicosEntity, { nullable: false })
   @JoinColumn({ name: 'id_medico' })
-  medico: MedicoEntity;
+  medico: MedicosEntity;
 
   // Se cambió 'datetime' a 'timestamp' porque PostgreSQL no soporta 'datetime'
   @Column({ type: 'timestamp', nullable: false })

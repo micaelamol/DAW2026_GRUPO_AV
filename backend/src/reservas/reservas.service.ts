@@ -1,24 +1,26 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { CreateReservaDto } from './dto/create-reserva.dto.js';
 import { ReservaEntity } from './entities/reserva.entity.js';
-import { Repository } from 'typeorm';
+import { Any, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EstadosReservas } from './enums/estados-reservas.enum.js';
-import { MedicoEntity } from '../usuarios/entities/medico.entity.js';
+import { MedicosEntity } from '../usuarios/entities/medico.entity.js';
+import { TurnosPacienteResponseDto } from './dto/turnosPaciente-response.dto.js';
+import { TurnosMedicoResponseDto } from './dto/turnosMedico-response.dto.js';
 
 @Injectable()
 export class ReservasService {
 
     constructor(
         @InjectRepository(ReservaEntity) private reservaRepositorio: Repository<ReservaEntity>,
-        @InjectRepository(MedicoEntity) private medicoRepositorio: Repository<MedicoEntity>
+        @InjectRepository(MedicosEntity) private medicoRepositorio: Repository<MedicosEntity>
     ) { }
 
     // CREACIÓN RESERVAS (Pacientes y Administrador)
 
-    async crearReserva(dto: CreateReservaDto) {
+    async crearReserva(dto: CreateReservaDto): Promise<TurnosPacienteResponseDto> {
         const fechaReserva1 = new Date(dto.fecha_hora);
-        const fechaReserva = `${fechaReserva1.toISOString().split('T')[0]},${fechaReserva1.toISOString().split('T')[1].substring(0,7)}`
+        const fechaReserva = `${fechaReserva1.toISOString().split('T')[0]},${fechaReserva1.toISOString().split('T')[1].substring(0, 7)}`
 
         this.validarFechaReserva(fechaReserva1);
         const reservaDuplicada = await this.reservaRepositorio.findOne({
@@ -44,9 +46,18 @@ export class ReservasService {
             medico: { id: dto.id_medico },
             paciente: { id: dto.id_paciente }
         });
-        await this.reservaRepositorio.save(nuevaReserva);
+        const reservaGuardada = await this.reservaRepositorio.save(nuevaReserva);
+        const turno = new TurnosPacienteResponseDto();
 
-        return nuevaReserva;
+        turno.idReserva = reservaGuardada.id;
+        turno.fechaTurno = reservaGuardada.fecha_hora;
+        turno.estado = reservaGuardada.estado;
+        turno.valorConsulta = reservaGuardada.valor_consulta;
+        turno.idMedico = dto.id_medico;
+        turno.idPaciente = dto.id_paciente;
+
+
+        return turno;
     }
 
     private validarFechaReserva(fechaReserva: Date) {
@@ -89,15 +100,40 @@ export class ReservasService {
     }
 
     // Paciente: Ve únicamente sus propios turnos reservados
-    async listarReservasPorPaciente(idPaciente: number) {
-        return await this.reservaRepositorio.find({
+    async listarReservasPorPaciente(idPaciente: number): Promise<TurnosPacienteResponseDto[]> {
+        /* return await this.reservaRepositorio.find({
             where: { paciente: { id: idPaciente } },
             relations: { medico: true }
-        });
+        }); */
+        const datos = await this.reservaRepositorio.createQueryBuilder('reserva')
+            .innerJoin('reserva.medico', 'medico')
+            .innerJoin('medico.usuario', 'usuario')
+            .addSelect(['usuario.nombres', 'usuario.apellidos', 'medico.id'])
+            .where('reserva.paciente = :idPaciente', { idPaciente: idPaciente })
+            .getRawMany();
+
+        return datos.map(d => {
+
+            console.log('valor de reserva en reservaService: ', d)
+            const dto = new TurnosPacienteResponseDto()
+            dto.idReserva = d.reserva_id
+            dto.idMedico = d.reserva_id_medico.id
+            dto.idPaciente = d.reserva_id_paciente
+            dto.nombreMedico = d.usuario_nombres
+            dto.apellidoMedico = d.usuario_apellidos
+            dto.fechaTurno = new Date(d.reserva_fecha_hora).toLocaleString('es-AR', {
+                timeZone: 'America/Argentina/Buenos_Aires',
+                hour12: false,
+            });
+            dto.valorConsulta = d.reserva_valor_consulta
+            dto.estado = d.reserva_estado
+            return dto
+        })
+
     }
 
     // Médico: Ve sus turnos reservados dada una fecha específica (Formato fecha: 'YYYY-MM-DD')
-    async listarReservasPorMedicoYFecha(idMedico: number, fechaStr: string) {
+    async listarReservasPorMedicoYFecha(idMedico: number, fechaStr: string):Promise<TurnosMedicoResponseDto[]> {
         const inicioDia = new Date(`${fechaStr}T00:00:00`);
         const finDia = new Date(`${fechaStr}T23:59:59`);
 
@@ -105,19 +141,35 @@ export class ReservasService {
             .leftJoinAndSelect('reserva.paciente', 'paciente')
             .where('reserva.id_medico = :idMedico', { idMedico })
             .andWhere('reserva.fecha_hora BETWEEN :inicioDia AND :finDia', { inicioDia, finDia })
-            .getMany();
-        /* console.log('Turnos encontrados:', turnos); // Depuración: muestra los turnos encontrados en la consola */
+            .getRawMany();
+        
         const turnosCorregidos = turnos.map(t => {
-            const fecha = new Date(t.fecha_hora);
+            const fecha = new Date(t.reserva_fecha_hora);
             fecha.setHours(fecha.getHours() - 3); // Restamos 3 hs
             return { ...t, fecha_hora: fecha };
         });
-        return turnosCorregidos;
+
+
+        return turnosCorregidos.map(t => {
+            const turno = new TurnosMedicoResponseDto()
+            turno.idRreserva = t.reserva_id
+            turno.valorConsulta = t.reserva_valor_consulta
+            turno.estado = t.reserva_estado
+            turno.idMedico = t.reserva_id_medico
+            turno.idPaciente = t.reserva_id_paciente
+            turno.apellidosPaciente = t.paciente_apellidos
+            turno.nombresPaciente = t.paciente_nombres
+            turno.emailPaciente = t.paciente_email
+            turno.estadoPaciente = t.paciente_estado
+            turno.rolPaciente = t.paciente_rol
+            turno.fechaTurno = t.fecha_hora
+            return turno
+        });
     }
 
     // (Exclusivo Médico)
 
-    async cambiarEstadoTurnoMedico(idReserva: number, nuevoEstado: 'atendido' | 'ausente') {
+    async cambiarEstadoTurnoMedico(idReserva: number, nuevoEstado: 'atendido' | 'ausente'): Promise<{ mensaje: string }> {
         const reserva = await this.reservaRepositorio.findOne({ where: { id: idReserva } });
         if (!reserva) {
             throw new BadRequestException("La reserva no existe.");
@@ -140,7 +192,7 @@ export class ReservasService {
     // CANCELACIONES POR ROL 
 
     // Paciente: Permite cancelar solo hasta el día anterior
-    async cancelarReservaComoPaciente(idReserva: number, idPaciente: number) {
+    async cancelarReservaComoPaciente(idReserva: number, idPaciente: number): Promise<{ mensaje: string }> {
         const reserva = await this.obtenerReservaValida(idReserva);
 
         if (reserva.paciente.id !== idPaciente) {
@@ -163,7 +215,7 @@ export class ReservasService {
     }
 
     // Administrador: Permite cancelar hasta el momento en que inicia la consulta
-    async cancelarReservaComoAdmin(idReserva: number) {
+    async cancelarReservaComoAdmin(idReserva: number): Promise<{ mensaje: string }> {
         const reserva = await this.obtenerReservaValida(idReserva);
 
         const ahora = new Date();
@@ -193,7 +245,7 @@ export class ReservasService {
         return reserva;
     }
 
-    private async aplicarCancelacion(reserva: ReservaEntity) {
+    private async aplicarCancelacion(reserva: ReservaEntity): Promise<{ mensaje: string }> {
         reserva.estado = EstadosReservas.CANCELADO;
         await this.reservaRepositorio.save(reserva);
         return { mensaje: `La reserva con ID ${reserva.id} fue cancelada exitosamente.` };

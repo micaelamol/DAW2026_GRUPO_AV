@@ -4,7 +4,7 @@ import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
 import { EstadosUsuario } from '../usuarios/enums/estados-usuario.enum.js';
 import { RolesUsuario } from '../usuarios/enums/roles-usuario.enum.js';
-import { MedicoEntity } from '../usuarios/entities/medico.entity.js';
+import { MedicosEntity } from '../usuarios/entities/medico.entity.js';
 import { UsuarioEntity } from '../usuarios/entities/usuario.entity.js';
 
 @Injectable()
@@ -14,8 +14,8 @@ export class SeedService implements OnApplicationBootstrap {
   constructor(
     @InjectRepository(UsuarioEntity)
     private readonly usuarioRepository: Repository<UsuarioEntity>,
-    @InjectRepository(MedicoEntity)
-    private readonly medicoRepository: Repository<MedicoEntity>,
+    @InjectRepository(MedicosEntity)
+    private readonly medicoRepository: Repository<MedicosEntity>,
   ) {}
 
   async onApplicationBootstrap(): Promise<void> {

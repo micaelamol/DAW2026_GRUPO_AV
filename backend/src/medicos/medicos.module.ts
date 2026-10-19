@@ -2,7 +2,7 @@ import { Module } from "@nestjs/common";
 import { MedicosService } from "./medicos.service.js";
 import { MedicosController } from "./medicos.controller.js";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { MedicosEntity } from "./entities/medicos.entity.js";
+import { MedicosEntity } from "../usuarios/entities/medico.entity.js";
 import { UsuarioEntity } from "../usuarios/entities/usuario.entity.js";
 
 
