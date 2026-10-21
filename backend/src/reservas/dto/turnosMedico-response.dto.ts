@@ -5,7 +5,7 @@ import { EstadosReservas } from "../enums/estados-reservas.enum.js"
 
 
 export class TurnosMedicoResponseDto {
-    idRreserva: number
+    idReserva: number
     valorConsulta: number
     estado: EstadosReservas
     idMedico: number
