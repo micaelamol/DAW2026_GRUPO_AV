@@ -159,7 +159,7 @@ export class ReservasService {
 
         return turnosCorregidos.map(t => {
             const turno = new TurnosMedicoResponseDto()
-            turno.idRreserva = t.reserva_id
+            turno.idReserva = t.reserva_id
             turno.valorConsulta = t.reserva_valor_consulta
             turno.estado = t.reserva_estado
             turno.idMedico = t.reserva_id_medico
