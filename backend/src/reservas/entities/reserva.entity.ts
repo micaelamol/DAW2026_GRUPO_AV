@@ -14,7 +14,7 @@ export class ReservaEntity {
 
   // Se cambió 'datetime' a 'timestamp' porque PostgreSQL no soporta 'datetime'
   @Column({ type: 'timestamp', nullable: false })
-  fecha_hora: string;
+  fecha_hora: Date;
 
   @ManyToOne(() => UsuarioEntity, { nullable: false })
   @JoinColumn({ name: 'id_paciente' })

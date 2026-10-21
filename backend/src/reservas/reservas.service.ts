@@ -1,7 +1,7 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { CreateReservaDto } from './dto/create-reserva.dto.js';
 import { ReservaEntity } from './entities/reserva.entity.js';
-import { Any, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EstadosReservas } from './enums/estados-reservas.enum.js';
 import { MedicosEntity } from '../usuarios/entities/medico.entity.js';
@@ -19,43 +19,50 @@ export class ReservasService {
     // CREACIÓN RESERVAS (Pacientes y Administrador)
 
     async crearReserva(dto: CreateReservaDto): Promise<TurnosPacienteResponseDto> {
-        const fechaReserva1 = new Date(dto.fecha_hora);
-        const fechaReserva = `${fechaReserva1.toISOString().split('T')[0]},${fechaReserva1.toISOString().split('T')[1].substring(0, 7)}`
+        const fechaReservaDate = new Date(dto.fecha_hora);
+        if (isNaN(fechaReservaDate.getTime())) {
+            throw new BadRequestException("Formato de fecha y hora inválido.");
+        }
 
-        this.validarFechaReserva(fechaReserva1);
-        const reservaDuplicada = await this.reservaRepositorio.findOne({
-            where: { medico: { id: dto.id_medico }, fecha_hora: fechaReserva, estado: EstadosReservas.ACTIVO }
-        });
+        this.validarFechaReserva(fechaReservaDate);
+
         const medico = await this.medicoRepositorio.findOne({ where: { id: dto.id_medico } });
+        if (!medico) {
+            throw new BadRequestException("El médico seleccionado no existe.");
+        }
+
+        // Validamos si ya existe un turno ocupado para ese médico (cualquier reserva que NO esté CANCELADA)
+        const reservaDuplicada = await this.reservaRepositorio.createQueryBuilder('reserva')
+            .where('reserva.id_medico = :idMedico', { idMedico: dto.id_medico })
+            .andWhere('reserva.fecha_hora = :fechaHora', { fechaHora: fechaReservaDate })
+            .andWhere('reserva.estado != :cancelado', { cancelado: EstadosReservas.CANCELADO })
+            .getOne();
 
         if (reservaDuplicada) {
-            throw new BadRequestException("El turno a reservar ya esta ocupado, elije otro horario/fecha.");
-        }
-        if (!medico) {
-            throw new BadRequestException("El medico seleccionado no existe.");
+            throw new BadRequestException("El turno a reservar ya está ocupado, elija otro horario o fecha.");
         }
 
         const precioCongelado = medico.valorConsulta;
 
-        const reservaStr = `${fechaReserva1.toISOString().split('T')[0]} ${fechaReserva1.toISOString().split('T')[1].split(':00.000Z')[0]}`
-
         const nuevaReserva = this.reservaRepositorio.create({
-            fecha_hora: reservaStr,
+            fecha_hora: fechaReservaDate,
             estado: EstadosReservas.ACTIVO,
             valor_consulta: precioCongelado,
             medico: { id: dto.id_medico },
             paciente: { id: dto.id_paciente }
         });
         const reservaGuardada = await this.reservaRepositorio.save(nuevaReserva);
-        const turno = new TurnosPacienteResponseDto();
 
+        const turno = new TurnosPacienteResponseDto();
         turno.idReserva = reservaGuardada.id;
-        turno.fechaTurno = reservaGuardada.fecha_hora;
+        const fechaHora = reservaGuardada.fecha_hora instanceof Date 
+            ? reservaGuardada.fecha_hora 
+            : new Date(reservaGuardada.fecha_hora);
+        turno.fechaTurno = fechaHora.toISOString();
         turno.estado = reservaGuardada.estado;
         turno.valorConsulta = reservaGuardada.valor_consulta;
         turno.idMedico = dto.id_medico;
         turno.idPaciente = dto.id_paciente;
-
 
         return turno;
     }
