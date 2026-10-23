@@ -67,35 +67,82 @@ export class ReservasService {
         return turno;
     }
 
-    private validarFechaReserva(fechaReserva: Date) {
-        const horaReserva = fechaReserva.getHours() + 3; // Ajuste de zona horaria a UTC-3
+    // private validarFechaReserva(fechaReserva: Date) {
+    //     const horaReserva = fechaReserva.getHours() + 3; // Ajuste de zona horaria a UTC-3
 
-        if (horaReserva < 8 || horaReserva > 15) {
-            throw new BadRequestException("El horario de atención es de 8 a 16 hs y los turnos duran 1 hora.");
-        }
+    //     if (horaReserva < 8 || horaReserva > 15) {
+    //         throw new BadRequestException("El horario de atención es de 8 a 16 hs y los turnos duran 1 hora.");
+    //     }
 
-        const diaDeLaSemana = fechaReserva.getDay();
+    //     const diaDeLaSemana = fechaReserva.getDay();
 
-        if (diaDeLaSemana === 0 || diaDeLaSemana === 6) {
-            throw new BadRequestException("Solo se atienden reservas de Lunes a Viernes.");
-        }
+    //     if (diaDeLaSemana === 0 || diaDeLaSemana === 6) {
+    //         throw new BadRequestException("Solo se atienden reservas de Lunes a Viernes.");
+    //     }
 
-        const hoy = new Date();
-        const diferenciaMiliseg = fechaReserva.getTime() - hoy.getTime();
-        const diferenciaDias = diferenciaMiliseg / (1000 * 60 * 60 * 24);
+    //     const hoy = new Date();
+    //     const diferenciaMiliseg = fechaReserva.getTime() - hoy.getTime();
+    //     const diferenciaDias = diferenciaMiliseg / (1000 * 60 * 60 * 24);
 
-        if (diferenciaDias < 0) {
-            throw new BadRequestException("No se pueden solicitar turnos en una fecha que ya paso.");
-        }
-        const minutos = fechaReserva.getMinutes()
-        if (minutos != 0) {
-            throw new BadRequestException("seleccione un horario válido, los minutos deben terminar en 00 .");
-        }
+    //     if (diferenciaDias < 0) {
+    //         throw new BadRequestException("No se pueden solicitar turnos en una fecha que ya paso.");
+    //     }
+    //     const minutos = fechaReserva.getMinutes()
+    //     if (minutos != 0) {
+    //         throw new BadRequestException("seleccione un horario válido, los minutos deben terminar en 00 .");
+    //     }
 
-        if (diferenciaDias > 30) {
-            throw new BadRequestException("No se pueden hacer reservas con más de 30 días de anticipación.");
-        }
+    //     if (diferenciaDias > 30) {
+    //         throw new BadRequestException("No se pueden hacer reservas con más de 30 días de anticipación.");
+    //     }
+    // }
+
+   private validarFechaReserva(fechaReserva: Date) {
+    if (isNaN(fechaReserva.getTime())) {
+        throw new BadRequestException("La fecha ingresada no es válida.");
     }
+
+    const partes = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/Argentina/Buenos_Aires',
+        weekday: 'short',
+        hour: '2-digit',
+        minute: '2-digit',
+        hourCycle: 'h23',
+    }).formatToParts(fechaReserva);
+
+    const get = (tipo: string) => partes.find(p => p.type === tipo)?.value;
+
+    const diaStr = get('weekday');
+    const hora = parseInt(get('hour')!, 10);
+    const minutos = parseInt(get('minute')!, 10);
+
+    // Solo Lunes a Viernes
+    if (diaStr === 'Sat' || diaStr === 'Sun') {
+        throw new BadRequestException("Solo se atienden reservas de Lunes a Viernes.");
+    }
+
+    // Atención de 8 a 16 hs. Como los turnos duran 1 hora,
+    // el último turno inicia a las 15:00 y termina a las 16:00.
+    if (hora < 8 || hora > 15) {
+        throw new BadRequestException("El horario de atención es de 8 a 16 hs y los turnos duran 1 hora.");
+    }
+
+    // Los turnos deben empezar en punto
+    if (minutos !== 0) {
+        throw new BadRequestException("Seleccione un horario válido, los minutos deben terminar en 00.");
+    }
+
+    const ahora = Date.now();
+    const diferenciaDias = (fechaReserva.getTime() - ahora) / (1000 * 60 * 60 * 24);
+
+    if (diferenciaDias < 0) {
+        throw new BadRequestException("No se pueden solicitar turnos en una fecha que ya pasó.");
+    }
+
+    if (diferenciaDias > 30) {
+        throw new BadRequestException("No se pueden hacer reservas con más de 30 días de anticipación.");
+    }
+}
 
     // FILTROS POR ROL
 
