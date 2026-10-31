@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>backend documentation</title>
+        <title>Clinica documentation</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -78,7 +78,7 @@
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
-                    <a href="../" class="navbar-brand">backend documentation</a>
+                    <a href="../" class="navbar-brand">Clinica documentation</a>
                     <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
                </div>
         </div>
@@ -204,6 +204,11 @@
                                     <span class="modifier">Async</span>
                                 <a href="#listar" >listar</a>
                             </li>
+                            <li>
+                                <span class="reference-badge reference-badge--method" aria-hidden="true">M</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#listarPacientes" >listarPacientes</a>
+                            </li>
                         </ul>
                     </td>
                 </tr>
@@ -227,7 +232,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="8" class="link-to-prism">src/usuarios/usuarios.service.ts:8</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="10" class="link-to-prism">src/usuarios/usuarios.service.ts:10</a></div>
                             </td>
                         </tr>
 
@@ -290,8 +295,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="26"
-                                    class="link-to-prism">src/usuarios/usuarios.service.ts:26</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="28"
+                                    class="link-to-prism">src/usuarios/usuarios.service.ts:28</a></div>
                         </td>
                     </tr>
 
@@ -359,8 +364,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="14"
-                                    class="link-to-prism">src/usuarios/usuarios.service.ts:14</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="16"
+                                    class="link-to-prism">src/usuarios/usuarios.service.ts:16</a></div>
                         </td>
                     </tr>
 
@@ -428,8 +433,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="22"
-                                    class="link-to-prism">src/usuarios/usuarios.service.ts:22</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="24"
+                                    class="link-to-prism">src/usuarios/usuarios.service.ts:24</a></div>
                         </td>
                     </tr>
 
@@ -497,8 +502,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="38"
-                                    class="link-to-prism">src/usuarios/usuarios.service.ts:38</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="40"
+                                    class="link-to-prism">src/usuarios/usuarios.service.ts:40</a></div>
                         </td>
                     </tr>
 
@@ -508,6 +513,45 @@
 
                         <div class="io-description">
                             <b>Returns : </b>        <code><a href="../entitys/UsuarioEntity.html" target="_self" >Promise&lt;UsuarioEntity[]&gt;</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="listarPacientes"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>listarPacientes</b></span>
+                        <a href="#listarPacientes"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>listarPacientes()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="44"
+                                    class="link-to-prism">src/usuarios/usuarios.service.ts:44</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/UsuarioResponseDto.html" target="_self" >Promise&lt;UsuarioResponseDto[]&gt;</a></code>
 
                         </div>
                 </td>
@@ -526,6 +570,8 @@ import { InjectRepository } from &#x27;@nestjs/typeorm&#x27;;
 import { Repository } from &#x27;typeorm&#x27;;
 import { UsuarioResponseDto } from &#x27;../auth/dto/usuario-response.dto.js&#x27;;
 import { UsuarioEntity } from &#x27;./entities/usuario.entity.js&#x27;;
+import { RolesUsuario } from &#x27;./enums/roles-usuario.enum.js&#x27;;
+import { EstadosUsuario } from &#x27;./enums/estados-usuario.enum.js&#x27;;
 
 @Injectable()
 export class UsuariosService {
@@ -560,6 +606,21 @@ export class UsuariosService {
 
   async listar(): Promise&lt;UsuarioEntity[]&gt; {
     return this.usuarioRepository.find();
+  }
+
+  async listarPacientes(): Promise&lt;UsuarioResponseDto[]&gt; {
+    const pacientes &#x3D; await this.usuarioRepository.find({
+      where: {
+        rol: RolesUsuario.PACIENTE,
+        estado: EstadosUsuario.ACTIVO,
+      },
+      order: {
+        apellidos: &#x27;ASC&#x27;,
+        nombres: &#x27;ASC&#x27;,
+      },
+    });
+
+    return pacientes.map((p) &#x3D;&gt; this.aResponseDto(p));
   }
 }</code></pre>
     </div>

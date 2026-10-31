@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>backend documentation</title>
+        <title>Clinica documentation</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -78,7 +78,7 @@
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
-                    <a href="../" class="navbar-brand">backend documentation</a>
+                    <a href="../" class="navbar-brand">Clinica documentation</a>
                     <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
                </div>
         </div>
@@ -293,12 +293,12 @@
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Module } from &#x27;@nestjs/common&#x27;;
 import { TypeOrmModule } from &#x27;@nestjs/typeorm&#x27;;
 import { UsuarioEntity } from &#x27;./entities/usuario.entity.js&#x27;;
-import { MedicoEntity } from &#x27;./entities/medico.entity.js&#x27;;
+import { MedicosEntity } from &#x27;../usuarios/entities/medico.entity.js&#x27;;
 import { UsuariosController } from &#x27;./usuarios.controller.js&#x27;;
 import { UsuariosService } from &#x27;./usuarios.service.js&#x27;;
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UsuarioEntity, MedicoEntity])],
+  imports: [TypeOrmModule.forFeature([UsuarioEntity, MedicosEntity])],
   controllers: [UsuariosController],
   providers: [UsuariosService],
   exports: [UsuariosService],

@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>backend documentation</title>
+        <title>Clinica documentation</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -78,7 +78,7 @@
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
-                    <a href="../" class="navbar-brand">backend documentation</a>
+                    <a href="../" class="navbar-brand">Clinica documentation</a>
                     <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
                </div>
         </div>
@@ -227,7 +227,7 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(usuarioRepository: <a href="../entitys/UsuarioEntity.html" target="_self">Repository&lt;UsuarioEntity&gt;</a>, medicoRepository: <a href="../entitys/MedicoEntity.html" target="_self">Repository&lt;MedicoEntity&gt;</a>)</code>
+<code>constructor(usuarioRepository: <a href="../entitys/UsuarioEntity.html" target="_self">Repository&lt;UsuarioEntity&gt;</a>, medicoRepository: <a href="../entitys/MedicosEntity.html" target="_self">Repository&lt;MedicosEntity&gt;</a>)</code>
                     </td>
                 </tr>
                         <tr>
@@ -265,7 +265,7 @@
                                                         <td>medicoRepository</td>
                                                   
                                                         <td>
-                                                                        <code><a href="../entitys/MedicoEntity.html" target="_self" >Repository&lt;MedicoEntity&gt;</a></code>
+                                                                        <code><a href="../entitys/MedicosEntity.html" target="_self" >Repository&lt;MedicosEntity&gt;</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -378,7 +378,7 @@ import * as bcrypt from &#x27;bcrypt&#x27;;
 import { Repository } from &#x27;typeorm&#x27;;
 import { EstadosUsuario } from &#x27;../usuarios/enums/estados-usuario.enum.js&#x27;;
 import { RolesUsuario } from &#x27;../usuarios/enums/roles-usuario.enum.js&#x27;;
-import { MedicoEntity } from &#x27;../usuarios/entities/medico.entity.js&#x27;;
+import { MedicosEntity } from &#x27;../usuarios/entities/medico.entity.js&#x27;;
 import { UsuarioEntity } from &#x27;../usuarios/entities/usuario.entity.js&#x27;;
 
 @Injectable()
@@ -388,8 +388,8 @@ export class SeedService implements OnApplicationBootstrap {
   constructor(
     @InjectRepository(UsuarioEntity)
     private readonly usuarioRepository: Repository&lt;UsuarioEntity&gt;,
-    @InjectRepository(MedicoEntity)
-    private readonly medicoRepository: Repository&lt;MedicoEntity&gt;,
+    @InjectRepository(MedicosEntity)
+    private readonly medicoRepository: Repository&lt;MedicosEntity&gt;,
   ) {}
 
   async onApplicationBootstrap(): Promise&lt;void&gt; {

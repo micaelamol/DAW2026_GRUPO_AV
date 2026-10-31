@@ -31,7 +31,7 @@ async function bootstrap() {
   );
   const config=app.get(ConfigService);
 
-  if (config.get<string>('SWAGGER_HABILITADO') === 'true') {
+  if (config.get<string | boolean>('SWAGGER_HABILITADO')?.toString() === 'true') {
     const swaggerConfig = new DocumentBuilder()
       .setTitle('Clínica Médica API')
       .setDescription('API del Trabajo Final Integrador - Desarrollo de Aplicaciones Web 2026')

@@ -67,36 +67,6 @@ export class ReservasService {
         return turno;
     }
 
-    // private validarFechaReserva(fechaReserva: Date) {
-    //     const horaReserva = fechaReserva.getHours() + 3; // Ajuste de zona horaria a UTC-3
-
-    //     if (horaReserva < 8 || horaReserva > 15) {
-    //         throw new BadRequestException("El horario de atención es de 8 a 16 hs y los turnos duran 1 hora.");
-    //     }
-
-    //     const diaDeLaSemana = fechaReserva.getDay();
-
-    //     if (diaDeLaSemana === 0 || diaDeLaSemana === 6) {
-    //         throw new BadRequestException("Solo se atienden reservas de Lunes a Viernes.");
-    //     }
-
-    //     const hoy = new Date();
-    //     const diferenciaMiliseg = fechaReserva.getTime() - hoy.getTime();
-    //     const diferenciaDias = diferenciaMiliseg / (1000 * 60 * 60 * 24);
-
-    //     if (diferenciaDias < 0) {
-    //         throw new BadRequestException("No se pueden solicitar turnos en una fecha que ya paso.");
-    //     }
-    //     const minutos = fechaReserva.getMinutes()
-    //     if (minutos != 0) {
-    //         throw new BadRequestException("seleccione un horario válido, los minutos deben terminar en 00 .");
-    //     }
-
-    //     if (diferenciaDias > 30) {
-    //         throw new BadRequestException("No se pueden hacer reservas con más de 30 días de anticipación.");
-    //     }
-    // }
-
    private validarFechaReserva(fechaReserva: Date) {
     if (isNaN(fechaReserva.getTime())) {
         throw new BadRequestException("La fecha ingresada no es válida.");

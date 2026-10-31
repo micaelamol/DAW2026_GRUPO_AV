@@ -1,5 +1,5 @@
 {
-  "name": "backend",
+  "name": "Clinica Medica",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -8,7 +8,7 @@
   "type": "module",
   "scripts": {
     "build": "nest build",
-    "deploy": "nest deploy",
+    "deploy": "npm install && npm run build && pm2 startOrRestart ecosystem.config.json && pm2 save",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "compodoc": "npx compodoc -p tsconfig.json -d documentation -s  --port 8081",

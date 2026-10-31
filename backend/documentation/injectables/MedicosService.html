@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>backend documentation</title>
+        <title>Clinica documentation</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -78,7 +78,7 @@
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
-                    <a href="../" class="navbar-brand">backend documentation</a>
+                    <a href="../" class="navbar-brand">Clinica documentation</a>
                     <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
                </div>
         </div>
@@ -188,6 +188,11 @@
                             <li>
                                 <span class="reference-badge reference-badge--method" aria-hidden="true">M</span>
                                     <span class="modifier">Async</span>
+                                <a href="#actualizarValorConsulta" >actualizarValorConsulta</a>
+                            </li>
+                            <li>
+                                <span class="reference-badge reference-badge--method" aria-hidden="true">M</span>
+                                    <span class="modifier">Async</span>
                                 <a href="#listarMedicos" >listarMedicos</a>
                             </li>
                         </ul>
@@ -213,7 +218,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="11" class="link-to-prism">src/medicos/medicos.service.ts:11</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="8" class="link-to-prism">src/medicos/medicos.service.ts:8</a></div>
                             </td>
                         </tr>
 
@@ -260,6 +265,87 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="actualizarValorConsulta"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>actualizarValorConsulta</b></span>
+                        <a href="#actualizarValorConsulta"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>actualizarValorConsulta(idMedico: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, nuevoValor: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="29"
+                                    class="link-to-prism">src/medicos/medicos.service.ts:29</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>idMedico</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>nuevoValor</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../interfaces/MedicosResponseDto.html" target="_self" >Promise&lt;MedicosResponseDto&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="listarMedicos"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
@@ -278,8 +364,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="16"
-                                    class="link-to-prism">src/medicos/medicos.service.ts:16</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="13"
+                                    class="link-to-prism">src/medicos/medicos.service.ts:13</a></div>
                         </td>
                     </tr>
 
@@ -302,14 +388,11 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &quot;@nestjs/common&quot;;
-import { MedicosEntity } from &quot;./entities/medicos.entity.js&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, NotFoundException } from &quot;@nestjs/common&quot;;
+import { MedicosEntity } from &quot;../usuarios/entities/medico.entity.js&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
-import { Repository } from &quot;typeorm/browser/repository/Repository.js&quot;;
+import { Repository } from &quot;typeorm&quot;;
 import { MedicosResponseDto } from &quot;./dto/medicos-response.dto.js&quot;;
-
-
-
 
 @Injectable()
 export class MedicosService {
@@ -318,10 +401,9 @@ export class MedicosService {
   private readonly medicosRepository: Repository&lt;MedicosEntity&gt;) { }
 
   async listarMedicos(): Promise&lt;MedicosResponseDto[]&gt; {
-
     const medicos &#x3D; await this.medicosRepository.createQueryBuilder(&#x27;medico&#x27;)
       .leftJoin(&#x27;medico.usuario&#x27;, &#x27;usuario&#x27;)
-      .addSelect([&#x27;usuario.nombres&#x27;, &#x27;usuario.apellidos&#x27;]) // solo estas columnas de usuario
+      .addSelect([&#x27;usuario.nombres&#x27;, &#x27;usuario.apellidos&#x27;])
       .getMany();
 
     return medicos.map(medico &#x3D;&gt; ({
@@ -332,7 +414,29 @@ export class MedicosService {
       matricula: medico.matricula,
       valorConsulta: medico.valorConsulta
     }));
+  }
 
+  async actualizarValorConsulta(idMedico: number, nuevoValor: number): Promise&lt;MedicosResponseDto&gt; {
+    const medico &#x3D; await this.medicosRepository.findOne({
+      where: { id: idMedico },
+      relations: { usuario: true },
+    });
+
+    if (!medico) {
+      throw new NotFoundException(&#x60;Médico con ID ${idMedico} no encontrado.&#x60;);
+    }
+
+    medico.valorConsulta &#x3D; nuevoValor;
+    const medicoActualizado &#x3D; await this.medicosRepository.save(medico);
+
+    return {
+      idMedico: medicoActualizado.id,
+      idUsuario: medicoActualizado.idUsuario,
+      nombre: medicoActualizado.usuario?.nombres ?? &#x27;&#x27;,
+      apellido: medicoActualizado.usuario?.apellidos ?? &#x27;&#x27;,
+      matricula: medicoActualizado.matricula,
+      valorConsulta: medicoActualizado.valorConsulta,
+    };
   }
 }
 </code></pre>

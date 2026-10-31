@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>backend documentation</title>
+        <title>Clinica documentation</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -78,7 +78,7 @@
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
-                    <a href="../" class="navbar-brand">backend documentation</a>
+                    <a href="../" class="navbar-brand">Clinica documentation</a>
                     <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
                </div>
         </div>
@@ -194,6 +194,13 @@
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                <a href="#actualizarValorConsulta" >actualizarValorConsulta</a>
+                            </li>
+                            <li>
+                                <span class="reference-badge reference-badge--method" aria-hidden="true">M</span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                 <a href="#listarMedicos" >listarMedicos</a>
                             </li>
                         </ul>
@@ -213,6 +220,96 @@
     <h3 id="methods">
         Methods
     </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="actualizarValorConsulta"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                        <span ><b>actualizarValorConsulta</b></span>
+                        <a href="#actualizarValorConsulta"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>actualizarValorConsulta(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, dto: <a href="../classes/ActualizarValorConsultaDto.html" target="_self">ActualizarValorConsultaDto</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@ApiOperation({summary: &#x27;Actualiza el valor de la consulta de un médico (solo Administrador)&#x27;})<br />@Roles(&#x27;ADMINISTRADOR&#x27;)<br />@Patch(&#x27;:id/valor-consulta&#x27;)<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="29"
+                                    class="link-to-prism">src/medicos/medicos.controller.ts:29</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>dto</td>
+                                            <td>
+                                                            <code><a href="../classes/ActualizarValorConsultaDto.html" target="_self" >ActualizarValorConsultaDto</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../interfaces/MedicosResponseDto.html" target="_self" >Promise&lt;MedicosResponseDto&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
     <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -244,8 +341,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="19"
-                                    class="link-to-prism">src/medicos/medicos.controller.ts:19</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="22"
+                                    class="link-to-prism">src/medicos/medicos.controller.ts:22</a></div>
                         </td>
                     </tr>
 
@@ -266,18 +363,21 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Controller, Get, UseGuards } from &quot;@nestjs/common&quot;;
-import { ApiOperation, ApiTags } from &quot;@nestjs/swagger&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Controller, Get, Patch, Param, Body, UseGuards } from &quot;@nestjs/common&quot;;
+import { ApiBearerAuth, ApiOperation, ApiTags } from &quot;@nestjs/swagger&quot;;
 import { MedicosService } from &quot;./medicos.service.js&quot;;
 import { MedicosResponseDto } from &quot;./dto/medicos-response.dto.js&quot;;
+import { ActualizarValorConsultaDto } from &quot;./dto/actualizar-valor-consulta.dto.js&quot;;
 import { Roles } from &quot;../auth/decorators/roles.decorator.js&quot;;
 import { RolesGuard } from &quot;../auth/guards/roles.guard.js&quot;;
 import { JwtAuthGuard } from &quot;../auth/guards/jwt-auth.guard.js&quot;;
+import { ParseIdPipe } from &quot;../shared/parse-id.pipe.js&quot;;
 
 
 @ApiTags(&#x27;medicos&#x27;)
+@ApiBearerAuth()
 @Controller(&#x27;medicos&#x27;)
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard) 
 export class MedicosController {
   constructor(private readonly medicosService: MedicosService) {}
 
@@ -286,6 +386,16 @@ export class MedicosController {
   @Get(&quot;&quot;)
   listarMedicos() : Promise&lt;MedicosResponseDto[]&gt; {
     return this.medicosService.listarMedicos();
+  }
+
+  @ApiOperation({ summary: &#x27;Actualiza el valor de la consulta de un médico (solo Administrador)&#x27; })
+  @Roles(&#x27;ADMINISTRADOR&#x27;)
+  @Patch(&#x27;:id/valor-consulta&#x27;)
+  actualizarValorConsulta(
+    @Param(&#x27;id&#x27;, ParseIdPipe) id: number,
+    @Body() dto: ActualizarValorConsultaDto
+  ) : Promise&lt;MedicosResponseDto&gt; {
+    return this.medicosService.actualizarValorConsulta(id, dto.valorConsulta);
   }
 }</code></pre>
     </div>
